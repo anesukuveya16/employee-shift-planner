@@ -6,7 +6,7 @@ import static org.mockito.Mockito.*;
 
 import com.anesu.project.employeeservice.entity.shift.ShiftRequest;
 import com.anesu.project.employeeservice.entity.shift.ShiftRequestStatus;
-import com.anesu.project.employeeservice.model.ShiftRequestRepository;
+import com.anesu.project.employeeservice.model.repository.ShiftRequestRepository;
 import com.anesu.project.employeeservice.service.exception.ShiftRequestNotFoundException;
 import com.anesu.project.employeeservice.service.exception.ShiftValidationException;
 import com.anesu.project.employeeservice.service.util.ShiftRequestValidator;

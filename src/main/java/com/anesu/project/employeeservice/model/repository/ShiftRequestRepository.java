@@ -1,4 +1,4 @@
-package com.anesu.project.employeeservice.model;
+package com.anesu.project.employeeservice.model.repository;
 
 import com.anesu.project.employeeservice.entity.shift.ShiftRequest;
 import java.time.LocalDate;
