@@ -1,4 +1,4 @@
-package com.anesu.project.employeeservice.entity;
+package com.anesu.project.employeeservice.entity.shift;
 
 public enum ShiftType {
   NIGHT_SHIFT,

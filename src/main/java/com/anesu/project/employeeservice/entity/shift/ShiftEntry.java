@@ -1,4 +1,4 @@
-package com.anesu.project.employeeservice.entity;
+package com.anesu.project.employeeservice.entity.shift;
 
 import jakarta.persistence.Embeddable;
 import java.time.LocalDate;

@@ -1,6 +1,5 @@
-package com.anesu.project.employeeservice.model;
+package com.anesu.project.employeeservice.entity.shift;
 
-import com.anesu.project.employeeservice.service.ShiftRequestStatus;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import lombok.*;

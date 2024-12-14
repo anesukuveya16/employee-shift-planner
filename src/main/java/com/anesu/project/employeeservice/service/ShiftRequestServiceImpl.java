@@ -1,9 +1,11 @@
 package com.anesu.project.employeeservice.service;
 
-import com.anesu.project.employeeservice.model.ShiftRequest;
+import com.anesu.project.employeeservice.entity.shift.ShiftRequest;
+import com.anesu.project.employeeservice.entity.shift.ShiftRequestStatus;
 import com.anesu.project.employeeservice.model.ShiftRequestRepository;
 import com.anesu.project.employeeservice.model.ShiftRequestService;
 import com.anesu.project.employeeservice.service.exception.ShiftRequestNotFoundException;
+import com.anesu.project.employeeservice.service.util.ShiftRequestValidator;
 import java.time.LocalDate;
 import java.util.List;
 

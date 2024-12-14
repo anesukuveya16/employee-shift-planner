@@ -1,4 +1,4 @@
-package com.anesu.project.employeeservice.service;
+package com.anesu.project.employeeservice.entity.shift;
 
 public enum ShiftRequestStatus {
   APPROVED,
