@@ -67,7 +67,8 @@ class VacationRequestServiceImplTest {
       throws VacationRequestNotFoundException {
     // Given
     VacationRequest givenPendingVacationRequest =
-        givenVacationRequestWithStatus(VacationRequestStatus.PENDING);
+        givenVacationRequestWithStatusAndDuration(
+            VacationRequestStatus.PENDING, LocalDate.now(), 5);
 
     when(vacationRequestRepositoryMock.findById(givenPendingVacationRequest.getId()))
         .thenReturn(Optional.of(givenPendingVacationRequest));
@@ -157,7 +158,8 @@ class VacationRequestServiceImplTest {
     // Given
 
     VacationRequest givenApprovedVacationRequest =
-        givenVacationRequestWithStatus(VacationRequestStatus.APPROVED);
+        givenVacationRequestWithStatusAndDuration(
+            VacationRequestStatus.APPROVED, LocalDate.now(), 5);
 
     when(vacationRequestRepositoryMock.findByOfficeLocationAndDateRangeAndStatus(
             givenApprovedVacationRequest.getOfficeLocationId(),
@@ -184,10 +186,27 @@ class VacationRequestServiceImplTest {
             List.of(VacationRequestStatus.APPROVED, VacationRequestStatus.PENDING));
   }
 
-  private VacationRequest givenVacationRequestWithStatus(VacationRequestStatus status) {
+  private List<VacationRequest> givenUsedVacationDays() {
+
+    VacationRequest usedVacationOne =
+        givenVacationRequestWithStatusAndDuration(
+            VacationRequestStatus.APPROVED, LocalDate.now().minusMonths(10), 10);
+
+    VacationRequest usedVacationTwo =
+        givenVacationRequestWithStatusAndDuration(
+            VacationRequestStatus.APPROVED, LocalDate.now().minusMonths(8), 10);
+
+    VacationRequest usedVacationThree =
+        givenVacationRequestWithStatusAndDuration(
+            VacationRequestStatus.APPROVED, LocalDate.now().minusMonths(5), 10);
+
+    return List.of(usedVacationOne, usedVacationTwo, usedVacationThree);
+  }
+
+  private VacationRequest givenVacationRequestWithStatusAndDuration(
+      VacationRequestStatus status, LocalDate startDate, int days) {
     Long officeLocationId = 1L;
-    LocalDate startDate = LocalDate.now();
-    LocalDate endDate = startDate.plusDays(5);
+    LocalDate endDate = startDate.plusDays(days);
     VacationRequest vacationRequest = new VacationRequest();
     vacationRequest.setOfficeLocationId(officeLocationId);
     vacationRequest.setStartDate(startDate);
