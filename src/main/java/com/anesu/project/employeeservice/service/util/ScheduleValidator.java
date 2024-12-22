@@ -1,80 +1,67 @@
 package com.anesu.project.employeeservice.service.util;
 
 import com.anesu.project.employeeservice.entity.schedule.Schedule;
+import com.anesu.project.employeeservice.entity.shift.ShiftEntry;
+import com.anesu.project.employeeservice.service.exception.InvalidScheduleException;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ScheduleValidator {
 
-  public void validateSchedule(Schedule schedule) {}
+  private static final int MAX_WORKING_HOURS_PER_SHIFT = 8;
+  private static final int MAX_WORKING_HOURS_PER_WEEK = 40;
 
-  //  public class SchedulingValidator {
-  //
-  //    private static final int MAX_WEEKLY_WORKING_HOURS = 40;
-  //
-  //    // Validate that the schedule's date range is valid
-  //    public void validateDateRange(Schedule schedule) {
-  //      if (schedule.getStartDate().isAfter(schedule.getEndDate())) {
-  //        throw new ValidationException("Start date cannot be after end date.");
-  //      }
-  //    }
-  //
-  //    // Validate that the start date is not in the past
-  //    public void validateStartDate(Schedule schedule) {
-  //      if (schedule.getStartDate().isBefore(LocalDate.now())) {
-  //        throw new ValidationException("Start date cannot be in the past.");
-  //      }
-  //    }
-  //
-  //    // Validate that there are no overlapping schedules for the employee
-  //    public void validateNoOverlap(Schedule schedule, List<Schedule> existingSchedules) {
-  //      boolean overlaps = existingSchedules.stream()
-  //              .anyMatch(existingSchedule ->
-  //                      !existingSchedule.getEndDate().isBefore(schedule.getStartDate()) &&
-  //                              !existingSchedule.getStartDate().isAfter(schedule.getEndDate()));
-  //      if (overlaps) {
-  //        throw new ValidationException("Schedule overlaps with an existing schedule for employee
-  // ID: " + schedule.getEmployeeId());
-  //      }
-  //    }
-  //
-  //    // Validate working hours are within legal limits
-  //    public void validateWorkingHours(Schedule schedule) {
-  //      if (schedule.getWorkingHours() > MAX_WEEKLY_WORKING_HOURS) {
-  //        throw new ValidationException("Working hours cannot exceed " + MAX_WEEKLY_WORKING_HOURS
-  // + " hours per week.");
-  //      }
-  //    }
-  //
-  //    // Validate that days off are within the schedule's date range
-  //    public void validateDaysOff(Schedule schedule) {
-  //      if (!schedule.getDaysOff().isEmpty()) {
-  //        for (LocalDate dayOff : schedule.getDaysOff()) {
-  //          if (dayOff.isBefore(schedule.getStartDate()) || dayOff.isAfter(schedule.getEndDate()))
-  // {
-  //            throw new ValidationException("Day off " + dayOff + " is outside the schedule's date
-  // range.");
-  //          }
-  //        }
-  //      }
-  //    }
-  //
-  //    // Validate shift type
-  //    public void validateShiftType(Schedule schedule) {
-  //      List<String> validShiftTypes = List.of("morning", "afternoon", "night");
-  //      if (!validShiftTypes.contains(schedule.getShiftType().toLowerCase())) {
-  //        throw new ValidationException("Invalid shift type: " + schedule.getShiftType() + ".
-  // Valid types are morning, afternoon, or night.");
-  //      }
-  //    }
-  //
-  //    // Perform all validations for a schedule
-  //    public void validateSchedule(Schedule schedule, List<Schedule> existingSchedules) {
-  //      validateDateRange(schedule);
-  //      validateStartDate(schedule);
-  //      validateNoOverlap(schedule, existingSchedules);
-  //      validateWorkingHours(schedule);
-  //      validateDaysOff(schedule);
-  //      validateShiftType(schedule);
-  //    }
-  //  }
+  public void validate(Schedule schedule) throws InvalidScheduleException {
+    validateDates(schedule);
+    validateWorkingHours(schedule);
+  }
 
+  private void validateDates(Schedule schedule) throws InvalidScheduleException {
+    if (schedule.getStartDate() == null || schedule.getEndDate() == null) {
+      throw new InvalidScheduleException("Start date or end date is null");
+    }
+    if (schedule.getStartDate().isAfter(schedule.getEndDate())) {
+      throw new InvalidScheduleException("Start date cannot be after end date");
+    }
+    if (schedule.getShifts() == null || schedule.getVacations() == null) {
+      throw new InvalidScheduleException("Shifts or vacations are null");
+    }
+  }
+
+  private void validateWorkingHours(Schedule schedule) throws InvalidScheduleException {
+    // Validate working hours per shift
+    for (ShiftEntry shift : schedule.getShifts()) {
+      if (shift.getWorkingHours() > MAX_WORKING_HOURS_PER_SHIFT) {
+        throw new InvalidScheduleException("Shift exceeds maximum working hours");
+      }
+    }
+
+    // Validate working hours per week
+    Map<LocalDate, Integer> dailyWorkingHours =
+        schedule.getShifts().stream()
+            .collect(
+                Collectors.groupingBy(
+                    ShiftEntry::getDate, Collectors.summingInt(ShiftEntry::getWorkingHours)));
+
+    for (LocalDate date : dailyWorkingHours.keySet()) {
+      int weeklyHours = calculateWeeklyHours(dailyWorkingHours, date);
+      if (weeklyHours > MAX_WORKING_HOURS_PER_WEEK) {
+        throw new InvalidScheduleException("Weekly working hours exceed maximum limit");
+      }
+    }
+  }
+
+  private int calculateWeeklyHours(Map<LocalDate, Integer> dailyWorkingHours, LocalDate date) {
+    LocalDate weekStart = date.with(DayOfWeek.MONDAY);
+    LocalDate weekEnd = date.with(DayOfWeek.SUNDAY);
+
+    return dailyWorkingHours.entrySet().stream()
+        .filter(entry -> !entry.getKey().isBefore(weekStart) && !entry.getKey().isAfter(weekEnd))
+        .mapToInt(Map.Entry::getValue)
+        .sum();
+  }
 }

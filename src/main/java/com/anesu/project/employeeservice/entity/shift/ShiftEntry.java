@@ -16,4 +16,5 @@ public class ShiftEntry {
   private Integer shiftId;
   private LocalDate date;
   private ShiftType shiftType;
+  private Integer workingHours;
 }
