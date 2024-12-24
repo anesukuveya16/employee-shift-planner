@@ -27,7 +27,7 @@ public class ScheduleValidator {
     if (schedule.getStartDate().isAfter(schedule.getEndDate())) {
       throw new InvalidScheduleException("Start date cannot be after end date");
     }
-    if (schedule.getShifts() == null || schedule.getVacations() == null) {
+    if (schedule.getShifts() == null && schedule.getVacations() == null) {
       throw new InvalidScheduleException("Shifts or vacations are null");
     }
   }

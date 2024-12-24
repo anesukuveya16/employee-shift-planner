@@ -1,22 +1,21 @@
 package com.anesu.project.employeeservice.service.util;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import com.anesu.project.employeeservice.entity.schedule.Schedule;
 import com.anesu.project.employeeservice.model.repository.ScheduleRepository;
 import com.anesu.project.employeeservice.service.ScheduleServiceImpl;
 import com.anesu.project.employeeservice.service.exception.InvalidScheduleException;
 import com.anesu.project.employeeservice.service.exception.ScheduleNotFoundException;
+import java.time.LocalDate;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDate;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SchedulingServiceImplTest {
@@ -134,13 +133,12 @@ class SchedulingServiceImplTest {
     long employeeId = 1L;
     doThrow(ScheduleNotFoundException.class).when(scheduleRepositoryMock).existsById(employeeId);
 
-    //When
+    // When
     assertThrows(ScheduleNotFoundException.class, () -> cut.deleteSchedule(employeeId));
 
     // Then
     verify(scheduleRepositoryMock, times(1)).existsById(employeeId);
     verifyNoMoreInteractions(scheduleRepositoryMock);
-
   }
 
   private Schedule givenScheduleWithDurationAndStartDate(
@@ -152,5 +150,4 @@ class SchedulingServiceImplTest {
     schedule.setTotalWorkingHours(totalWorkingHours);
     return schedule;
   }
-
 }
