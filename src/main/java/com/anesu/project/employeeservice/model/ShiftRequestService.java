@@ -1,6 +1,7 @@
 package com.anesu.project.employeeservice.model;
 
 import com.anesu.project.employeeservice.entity.shift.ShiftRequest;
+import com.anesu.project.employeeservice.entity.shift.ShiftRequestStatus;
 import com.anesu.project.employeeservice.service.exception.ShiftRequestNotFoundException;
 import java.time.LocalDate;
 import java.util.List;
@@ -57,9 +58,11 @@ public interface ShiftRequestService {
    * Retrieves a shift request by its ID.
    *
    * @param shiftRequestId the ID of the shift request
+   * @param status
    * @return the shift request
    */
-  ShiftRequest getShiftRequestById(Long shiftRequestId) throws ShiftRequestNotFoundException;
+  ShiftRequest getShiftRequestByIdAndStatus(Long shiftRequestId, ShiftRequestStatus status)
+      throws ShiftRequestNotFoundException;
 
   /**
    * Retrieves shift requests by employee ID.

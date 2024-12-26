@@ -27,10 +27,16 @@ public class ShiftRequestServiceImpl implements ShiftRequestService {
     return shiftRequestRepository.save(shiftRequest);
   }
 
+  /**
+   * When a ShiftRequest has been approved:
+   * <li>1. It needs to be saved in the ShiftRequest DB.
+   * <li>2. Update the schedule to include the approved ShiftRequest, which is now a ShiftEntry.
+   */
   @Override
   public ShiftRequest approveShiftRequest(Long shiftRequestId)
       throws ShiftRequestNotFoundException {
-    ShiftRequest shiftRequest = getShiftRequestById(shiftRequestId);
+    ShiftRequest shiftRequest =
+        getShiftRequestByIdAndStatus(shiftRequestId, ShiftRequestStatus.PENDING);
     shiftRequest.setStatus(ShiftRequestStatus.APPROVED);
     return shiftRequestRepository.save(shiftRequest);
   }
@@ -38,21 +44,22 @@ public class ShiftRequestServiceImpl implements ShiftRequestService {
   @Override
   public ShiftRequest rejectShiftRequest(Long shiftRequestId, String rejectionReason)
       throws ShiftRequestNotFoundException {
-    ShiftRequest shiftRequest = getShiftRequestById(shiftRequestId);
+    ShiftRequest shiftRequest =
+        getShiftRequestByIdAndStatus(shiftRequestId, ShiftRequestStatus.PENDING);
     shiftRequest.setStatus(ShiftRequestStatus.REJECTED);
     shiftRequest.setRejectionReason(rejectionReason);
     return shiftRequestRepository.save(shiftRequest);
   }
 
   @Override
-  public ShiftRequest getShiftRequestById(Long shiftRequestId)
+  public ShiftRequest getShiftRequestByIdAndStatus(Long shiftRequestId, ShiftRequestStatus status)
       throws ShiftRequestNotFoundException {
     return shiftRequestRepository
-        .findById(shiftRequestId)
+        .findByIdAndStatus(shiftRequestId, status)
         .orElseThrow(
             () ->
                 new ShiftRequestNotFoundException(
-                    "Shift request not found with ID: " + shiftRequestId));
+                    "Could not find pending shift request with ID: " + shiftRequestId));
   }
 
   @Override

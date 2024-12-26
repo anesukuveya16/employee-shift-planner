@@ -1,5 +1,6 @@
 package com.anesu.project.employeeservice.entity;
 
+import com.anesu.project.employeeservice.entity.schedule.Schedule;
 import com.anesu.project.employeeservice.entity.vacation.VacationRequest;
 import jakarta.persistence.*;
 import java.time.LocalDate;
@@ -28,7 +29,12 @@ public class Employee {
   private String address;
   private String email;
 
-  @Embedded private EmployeeSchedule employeeSchedule;
+  @OneToOne(
+      mappedBy = "employee",
+      fetch = FetchType.LAZY,
+      cascade = CascadeType.ALL,
+      orphanRemoval = true)
+  private Schedule schedule;
 
   @OneToMany(
       mappedBy = "employee",
@@ -101,12 +107,12 @@ public class Employee {
     this.email = email;
   }
 
-  public EmployeeSchedule getEmployeeSchedule() {
-    return employeeSchedule;
+  public Schedule getSchedule() {
+    return schedule;
   }
 
-  public void setEmployeeSchedule(EmployeeSchedule employeeSchedule) {
-    this.employeeSchedule = employeeSchedule;
+  public void setSchedule(Schedule employeeSchedule) {
+    this.schedule = employeeSchedule;
   }
 
   public List<VacationRequest> getVacationRequests() {

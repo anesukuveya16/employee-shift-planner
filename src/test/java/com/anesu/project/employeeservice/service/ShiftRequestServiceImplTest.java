@@ -54,9 +54,10 @@ class ShiftRequestServiceImplTest {
     Long shiftRequestId = 1L;
     ShiftRequest shiftRequest = new ShiftRequest();
     shiftRequest.setId(shiftRequestId);
-    shiftRequest.setStatus(ShiftRequestStatus.PENDING);
+    ShiftRequestStatus status = ShiftRequestStatus.PENDING;
+    shiftRequest.setStatus(status);
 
-    when(shiftRequestRepositoryMock.findById(shiftRequestId)).thenReturn(Optional.of(shiftRequest));
+    when(shiftRequestRepositoryMock.findByIdAndStatus(shiftRequestId, status)).thenReturn(Optional.of(shiftRequest));
     when(shiftRequestRepositoryMock.save(any(ShiftRequest.class))).thenReturn(shiftRequest);
 
     // When
@@ -71,7 +72,8 @@ class ShiftRequestServiceImplTest {
   void approveShiftRequest_ShouldThrowException_WhenShiftRequestNotFound() {
     // Given
     Long shiftRequestId = 1L;
-    when(shiftRequestRepositoryMock.findById(shiftRequestId)).thenReturn(Optional.empty());
+    when(shiftRequestRepositoryMock.findByIdAndStatus(shiftRequestId, ShiftRequestStatus.PENDING))
+        .thenReturn(Optional.empty());
 
     // When & Then
     assertThrows(
@@ -85,9 +87,10 @@ class ShiftRequestServiceImplTest {
     String rejectionReason = "Not required";
     ShiftRequest shiftRequest = new ShiftRequest();
     shiftRequest.setId(shiftRequestId);
-    shiftRequest.setStatus(ShiftRequestStatus.PENDING);
+    ShiftRequestStatus status = ShiftRequestStatus.PENDING;
+    shiftRequest.setStatus(status);
 
-    when(shiftRequestRepositoryMock.findById(shiftRequestId)).thenReturn(Optional.of(shiftRequest));
+    when(shiftRequestRepositoryMock.findByIdAndStatus(shiftRequestId, status)).thenReturn(Optional.of(shiftRequest));
     when(shiftRequestRepositoryMock.save(any(ShiftRequest.class))).thenReturn(shiftRequest);
 
     // When
@@ -100,15 +103,16 @@ class ShiftRequestServiceImplTest {
   }
 
   @Test
-  void getShiftRequestById_ShouldThrowException_WhenShiftRequestNotFound() {
+  void getShiftRequestById_ShouldThrowException_WhenShiftRequestNotFoundAndStatus() {
     // Given
     Long shiftRequestId = 1L;
-
-    when(shiftRequestRepositoryMock.findById(shiftRequestId)).thenReturn(Optional.empty());
+    ShiftRequestStatus status = ShiftRequestStatus.PENDING;
+    when(shiftRequestRepositoryMock.findByIdAndStatus(shiftRequestId, status)).thenReturn(Optional.empty());
 
     // When & Then
     assertThrows(
-        ShiftRequestNotFoundException.class, () -> cut.getShiftRequestById(shiftRequestId));
+        ShiftRequestNotFoundException.class,
+        () -> cut.getShiftRequestByIdAndStatus(shiftRequestId, status));
   }
 
   @Test

@@ -22,6 +22,8 @@ public class Schedule {
   private LocalDate startDate;
   private LocalDate endDate;
   private Integer totalWorkingHours;
+  private int numberOfVacationDaysLeft;
+  private int numberOfVacationDaysUsed;
 
   @ElementCollection private List<ShiftEntry> shifts;
 
