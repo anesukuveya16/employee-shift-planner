@@ -2,6 +2,7 @@ package com.anesu.project.employeeservice.service;
 
 import com.anesu.project.employeeservice.entity.shift.ShiftRequest;
 import com.anesu.project.employeeservice.entity.shift.ShiftRequestStatus;
+import com.anesu.project.employeeservice.model.ScheduleService;
 import com.anesu.project.employeeservice.model.ShiftRequestService;
 import com.anesu.project.employeeservice.model.repository.ShiftRequestRepository;
 import com.anesu.project.employeeservice.service.exception.ShiftRequestNotFoundException;
@@ -13,11 +14,15 @@ public class ShiftRequestServiceImpl implements ShiftRequestService {
 
   private final ShiftRequestRepository shiftRequestRepository;
   private final ShiftRequestValidator shiftRequestValidator;
+  private final ScheduleService scheduleService;
 
   public ShiftRequestServiceImpl(
-      ShiftRequestRepository shiftRequestRepository, ShiftRequestValidator shiftRequestValidator) {
+      ShiftRequestRepository shiftRequestRepository,
+      ShiftRequestValidator shiftRequestValidator,
+      ScheduleService scheduleService) {
     this.shiftRequestRepository = shiftRequestRepository;
     this.shiftRequestValidator = shiftRequestValidator;
+    this.scheduleService = scheduleService;
   }
 
   @Override
@@ -35,10 +40,15 @@ public class ShiftRequestServiceImpl implements ShiftRequestService {
   @Override
   public ShiftRequest approveShiftRequest(Long shiftRequestId)
       throws ShiftRequestNotFoundException {
+
     ShiftRequest shiftRequest =
         getShiftRequestByIdAndStatus(shiftRequestId, ShiftRequestStatus.PENDING);
     shiftRequest.setStatus(ShiftRequestStatus.APPROVED);
-    return shiftRequestRepository.save(shiftRequest);
+    ShiftRequest approvedShiftRequest = shiftRequestRepository.save(shiftRequest);
+
+    scheduleService.updateSchedule(approvedShiftRequest);
+
+    return approvedShiftRequest;
   }
 
   @Override

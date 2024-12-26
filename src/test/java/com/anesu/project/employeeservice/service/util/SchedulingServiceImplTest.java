@@ -5,11 +5,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.anesu.project.employeeservice.entity.schedule.Schedule;
+import com.anesu.project.employeeservice.entity.shift.ShiftEntry;
+import com.anesu.project.employeeservice.entity.shift.ShiftRequest;
 import com.anesu.project.employeeservice.model.repository.ScheduleRepository;
 import com.anesu.project.employeeservice.service.ScheduleServiceImpl;
 import com.anesu.project.employeeservice.service.exception.InvalidScheduleException;
 import com.anesu.project.employeeservice.service.exception.ScheduleNotFoundException;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -150,4 +153,15 @@ class SchedulingServiceImplTest {
     schedule.setTotalWorkingHours(totalWorkingHours);
     return schedule;
   }
+
+//  private void verifyShiftRequestIsAddedToScheduleAsShiftEntry(ShiftRequest shiftRequest) {
+//    Schedule schedule = scheduleCaptor.getValue();
+//    List<ShiftEntry> shifts = schedule.getShifts();
+//    assertThat(shifts).hasSize(1);
+//
+//    ShiftEntry shiftEntry = shifts.getFirst();
+//    assertThat(shiftEntry.getShiftDate()).isEqualTo(shiftRequest.getShiftDate());
+//    assertThat(shiftEntry.getWorkingHours()).isEqualTo(shiftRequest.getShiftLengthInHours());
+//    assertThat(shiftEntry.getShiftType()).isEqualTo(shiftRequest.getShiftType());
+//  }
 }

@@ -41,27 +41,27 @@ public class ScheduleValidator {
     }
 
     // Validate working hours per week
-    Map<LocalDate, Integer> dailyWorkingHours =
+    Map<LocalDate, Long> dailyWorkingHours =
         schedule.getShifts().stream()
             .collect(
                 Collectors.groupingBy(
-                    ShiftEntry::getDate, Collectors.summingInt(ShiftEntry::getWorkingHours)));
+                    ShiftEntry::getShiftDate, Collectors.summingLong(ShiftEntry::getWorkingHours)));
 
     for (LocalDate date : dailyWorkingHours.keySet()) {
-      int weeklyHours = calculateWeeklyHours(dailyWorkingHours, date);
+      long weeklyHours = calculateWeeklyHours(dailyWorkingHours, date);
       if (weeklyHours > MAX_WORKING_HOURS_PER_WEEK) {
         throw new InvalidScheduleException("Weekly working hours exceed maximum limit");
       }
     }
   }
 
-  private int calculateWeeklyHours(Map<LocalDate, Integer> dailyWorkingHours, LocalDate date) {
+  private long calculateWeeklyHours(Map<LocalDate, Long> dailyWorkingHours, LocalDate date) {
     LocalDate weekStart = date.with(DayOfWeek.MONDAY);
     LocalDate weekEnd = date.with(DayOfWeek.SUNDAY);
 
     return dailyWorkingHours.entrySet().stream()
         .filter(entry -> !entry.getKey().isBefore(weekStart) && !entry.getKey().isAfter(weekEnd))
-        .mapToInt(Map.Entry::getValue)
+        .mapToLong(Map.Entry::getValue)
         .sum();
   }
 }

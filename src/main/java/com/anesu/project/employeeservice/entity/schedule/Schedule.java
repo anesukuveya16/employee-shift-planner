@@ -34,8 +34,10 @@ public class Schedule {
   public List<LocalDate> getShiftsInRange(LocalDate rangeStart, LocalDate rangeEnd) {
     return shifts.stream()
         .filter(
-            shift -> !shift.getDate().isBefore(rangeStart) && !shift.getDate().isAfter(rangeEnd))
-        .map(ShiftEntry::getDate)
+            shift ->
+                !shift.getShiftDate().isBefore(rangeStart)
+                    && !shift.getShiftDate().isAfter(rangeEnd))
+        .map(ShiftEntry::getShiftDate)
         .toList();
   }
 

@@ -1,6 +1,7 @@
 package com.anesu.project.employeeservice.service;
 
 import com.anesu.project.employeeservice.entity.schedule.Schedule;
+import com.anesu.project.employeeservice.entity.shift.ShiftRequest;
 import com.anesu.project.employeeservice.model.ScheduleService;
 import com.anesu.project.employeeservice.model.repository.ScheduleRepository;
 import com.anesu.project.employeeservice.service.exception.ScheduleNotFoundException;
@@ -40,6 +41,11 @@ public class ScheduleServiceImpl implements ScheduleService {
     scheduleValidator.validate(updateExsistingSchedule);
 
     return scheduleRepository.save(updateExsistingSchedule);
+  }
+
+  @Override
+  public Schedule updateSchedule(ShiftRequest approvedShiftRequest) {
+    return null;
   }
 
   @Override

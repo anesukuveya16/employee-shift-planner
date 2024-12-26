@@ -5,27 +5,27 @@ import java.time.LocalDate;
 
 @Embeddable
 public class ShiftEntry {
-  private Integer shiftId;
-  private LocalDate date;
+  private Long shiftId;
+  private LocalDate shiftDate;
   private ShiftType shiftType;
-  private Integer workingHours;
+  private Long workingHours;
 
   public ShiftEntry() {}
 
-  public Integer getShiftId() {
+  public Long getShiftId() {
     return shiftId;
   }
 
-  public void setShiftId(Integer shiftId) {
+  public void setShiftId(Long shiftId) {
     this.shiftId = shiftId;
   }
 
-  public LocalDate getDate() {
-    return date;
+  public LocalDate getShiftDate() {
+    return shiftDate;
   }
 
-  public void setDate(LocalDate date) {
-    this.date = date;
+  public void setShiftDate(LocalDate date) {
+    this.shiftDate = date;
   }
 
   public ShiftType getShiftType() {
@@ -36,11 +36,11 @@ public class ShiftEntry {
     this.shiftType = shiftType;
   }
 
-  public Integer getWorkingHours() {
+  public Long getWorkingHours() {
     return workingHours;
   }
 
-  public void setWorkingHours(Integer workingHours) {
+  public void setWorkingHours(Long workingHours) {
     this.workingHours = workingHours;
   }
 }

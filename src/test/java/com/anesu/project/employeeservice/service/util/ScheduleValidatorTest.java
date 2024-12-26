@@ -85,7 +85,7 @@ class ScheduleValidatorTest {
     // Given
 
     ShiftEntry shiftEntry = new ShiftEntry();
-    shiftEntry.setWorkingHours(10);
+    shiftEntry.setWorkingHours(10L);
 
     Schedule schedule = givenSchedule(START_DATE, END_DATE, List.of(shiftEntry));
 
@@ -125,8 +125,8 @@ class ScheduleValidatorTest {
     List<ShiftEntry> shiftEntries = new ArrayList<>();
     for (int i = 0; i < 7; i++) {
       ShiftEntry shiftEntry = new ShiftEntry();
-      shiftEntry.setWorkingHours(6);
-      shiftEntry.setDate(LocalDate.of(2024, 12, 28));
+      shiftEntry.setWorkingHours(6L);
+      shiftEntry.setShiftDate(LocalDate.of(2024, 12, 28));
 
       shiftEntries.add(shiftEntry);
     }

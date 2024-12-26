@@ -4,17 +4,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.anesu.project.employeeservice.entity.schedule.Schedule;
+import com.anesu.project.employeeservice.entity.shift.ShiftEntry;
 import com.anesu.project.employeeservice.entity.shift.ShiftRequest;
 import com.anesu.project.employeeservice.entity.shift.ShiftRequestStatus;
+import com.anesu.project.employeeservice.entity.shift.ShiftType;
+import com.anesu.project.employeeservice.model.ScheduleService;
 import com.anesu.project.employeeservice.model.repository.ShiftRequestRepository;
 import com.anesu.project.employeeservice.service.exception.ShiftRequestNotFoundException;
 import com.anesu.project.employeeservice.service.exception.ShiftValidationException;
 import com.anesu.project.employeeservice.service.util.ShiftRequestValidator;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -22,11 +29,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ShiftRequestServiceImplTest {
 
   @Mock private ShiftRequestRepository shiftRequestRepositoryMock;
+  @Mock private ScheduleService scheduleServiceMock;
   private ShiftRequestServiceImpl cut;
 
   @BeforeEach
   void setUp() {
-    cut = new ShiftRequestServiceImpl(shiftRequestRepositoryMock, new ShiftRequestValidator());
+    cut =
+        new ShiftRequestServiceImpl(
+            shiftRequestRepositoryMock, new ShiftRequestValidator(), scheduleServiceMock);
   }
 
   @Test
@@ -56,16 +66,20 @@ class ShiftRequestServiceImplTest {
     shiftRequest.setId(shiftRequestId);
     ShiftRequestStatus status = ShiftRequestStatus.PENDING;
     shiftRequest.setStatus(status);
+    shiftRequest.setShiftLengthInHours(6L);
+    shiftRequest.setShiftType(ShiftType.NIGHT_SHIFT);
 
-    when(shiftRequestRepositoryMock.findByIdAndStatus(shiftRequestId, status)).thenReturn(Optional.of(shiftRequest));
+    when(shiftRequestRepositoryMock.findByIdAndStatus(shiftRequestId, status))
+        .thenReturn(Optional.of(shiftRequest));
     when(shiftRequestRepositoryMock.save(any(ShiftRequest.class))).thenReturn(shiftRequest);
 
     // When
     ShiftRequest approvedShiftRequest = cut.approveShiftRequest(shiftRequestId);
 
     // Then
-    assertEquals(ShiftRequestStatus.APPROVED, approvedShiftRequest.getStatus());
-    verify(shiftRequestRepositoryMock, times(1)).save(shiftRequest);
+    assertThat(approvedShiftRequest.getStatus()).isEqualTo(ShiftRequestStatus.APPROVED);
+
+    verifyInteractionsWithDependencies(shiftRequest, approvedShiftRequest);
   }
 
   @Test
@@ -90,7 +104,8 @@ class ShiftRequestServiceImplTest {
     ShiftRequestStatus status = ShiftRequestStatus.PENDING;
     shiftRequest.setStatus(status);
 
-    when(shiftRequestRepositoryMock.findByIdAndStatus(shiftRequestId, status)).thenReturn(Optional.of(shiftRequest));
+    when(shiftRequestRepositoryMock.findByIdAndStatus(shiftRequestId, status))
+        .thenReturn(Optional.of(shiftRequest));
     when(shiftRequestRepositoryMock.save(any(ShiftRequest.class))).thenReturn(shiftRequest);
 
     // When
@@ -107,7 +122,8 @@ class ShiftRequestServiceImplTest {
     // Given
     Long shiftRequestId = 1L;
     ShiftRequestStatus status = ShiftRequestStatus.PENDING;
-    when(shiftRequestRepositoryMock.findByIdAndStatus(shiftRequestId, status)).thenReturn(Optional.empty());
+    when(shiftRequestRepositoryMock.findByIdAndStatus(shiftRequestId, status))
+        .thenReturn(Optional.empty());
 
     // When & Then
     assertThrows(
@@ -179,5 +195,11 @@ class ShiftRequestServiceImplTest {
     assertThat(shiftValidationException.getMessage())
         .isEqualTo(
             "New shift request violates working hours. Employee ID: 1 already has 1 hours for this shift scheduled/recorded. Maximum working hours should not exceed : 10 hours.");
+  }
+
+
+  private void verifyInteractionsWithDependencies(ShiftRequest shiftRequest, ShiftRequest approvedShiftRequest) {
+    verify(shiftRequestRepositoryMock, times(1)).save(shiftRequest);
+    verify(scheduleServiceMock).updateSchedule(approvedShiftRequest);
   }
 }

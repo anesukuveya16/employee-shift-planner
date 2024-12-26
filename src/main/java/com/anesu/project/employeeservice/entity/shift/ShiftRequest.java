@@ -24,6 +24,8 @@ public class ShiftRequest {
 
   private Long shiftLengthInHours;
 
+  private ShiftType shiftType;
+
   public Long getId() {
     return id;
   }
@@ -70,5 +72,13 @@ public class ShiftRequest {
 
   public void setRejectionReason(String rejectionReason) {
     this.rejectionReason = rejectionReason;
+  }
+
+  public ShiftType getShiftType() {
+    return shiftType;
+  }
+
+  public void setShiftType(ShiftType shiftType) {
+    this.shiftType = shiftType;
   }
 }
