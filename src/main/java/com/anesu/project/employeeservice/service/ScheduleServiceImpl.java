@@ -1,13 +1,19 @@
 package com.anesu.project.employeeservice.service;
 
 import com.anesu.project.employeeservice.entity.schedule.Schedule;
+import com.anesu.project.employeeservice.entity.shift.ShiftEntry;
 import com.anesu.project.employeeservice.entity.shift.ShiftRequest;
+import com.anesu.project.employeeservice.entity.shift.ShiftRequestStatus;
 import com.anesu.project.employeeservice.model.ScheduleService;
 import com.anesu.project.employeeservice.model.repository.ScheduleRepository;
+import com.anesu.project.employeeservice.service.exception.InvalidScheduleException;
 import com.anesu.project.employeeservice.service.exception.ScheduleNotFoundException;
 import com.anesu.project.employeeservice.service.util.ScheduleValidator;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -33,31 +39,45 @@ public class ScheduleServiceImpl implements ScheduleService {
   @Override
   public Schedule updateSchedule(Long scheduleId, Schedule updatedSchedule) {
 
-    Schedule existingScheduleToUpdate = getScheduleById(scheduleId);
+    Schedule existingScheduleToUpdate =
+        getScheduleById(scheduleId)
+            .orElseThrow(
+                () ->
+                    new ScheduleNotFoundException(
+                        SCHEDULE_NOT_FOUND_EXCEPTION_MESSAGE + scheduleId));
 
-    Schedule updateExsistingSchedule =
+    Schedule updatedExsistingSchedule =
         updateExsistingSchedule(updatedSchedule, existingScheduleToUpdate);
 
-    scheduleValidator.validate(updateExsistingSchedule);
+    scheduleValidator.validate(updatedExsistingSchedule);
 
-    return scheduleRepository.save(updateExsistingSchedule);
+    return scheduleRepository.save(updatedExsistingSchedule);
   }
 
   @Override
-  public Schedule updateSchedule(ShiftRequest approvedShiftRequest) {
-    return null;
+  public Schedule addShiftToSchedule(Long employeeId, ShiftRequest approvedShiftRequest) {
+
+    validateApprovedShiftRequest(approvedShiftRequest);
+
+    Optional<Schedule> scheduleInApprovedShiftCalendarWeek =
+        getScheduleInApprovedShiftCalendarWeek(employeeId, approvedShiftRequest);
+
+    Schedule schedule =
+        scheduleInApprovedShiftCalendarWeek.isPresent()
+            ? addNewShiftEntryToSchedule(approvedShiftRequest, scheduleInApprovedShiftCalendarWeek)
+            : createNewScheduleForApprovedShiftCalendarWeek(approvedShiftRequest, employeeId);
+
+    return scheduleRepository.save(schedule);
+  }
+
+
+  @Override
+  public Optional<Schedule> getScheduleById(Long scheduleId) {
+    return scheduleRepository.findById(scheduleId);
   }
 
   @Override
-  public Schedule getScheduleById(Long scheduleId) {
-    return scheduleRepository
-        .findById(scheduleId)
-        .orElseThrow(
-            () -> new ScheduleNotFoundException(SCHEDULE_NOT_FOUND_EXCEPTION_MESSAGE + scheduleId));
-  }
-
-  @Override
-  public List<Schedule> getSchedulesByEmployeeAndDateRange(
+  public Optional<List<Schedule>> getSchedulesByEmployeeAndDateRange(
       Long employeeId, LocalDate startDate, LocalDate endDate) {
     return scheduleRepository.findByEmployeeIdAndDateRange(employeeId, startDate, endDate);
   }
@@ -78,4 +98,47 @@ public class ScheduleServiceImpl implements ScheduleService {
     existingSchedule.setTotalWorkingHours(updatedSchedule.getTotalWorkingHours());
     return existingSchedule;
   }
+
+  private void validateApprovedShiftRequest(ShiftRequest approvedShiftRequest) {
+    if (!ShiftRequestStatus.APPROVED.equals(approvedShiftRequest.getStatus())) {
+      throw new InvalidScheduleException(
+              "Invalid schedule operation. ShiftRequest with ID: "
+                      + approvedShiftRequest.getId()
+                      + " is PENDING. Only approved shifts can be added to the schedule.");
+    }
+  }
+
+  private Optional<Schedule> getScheduleInApprovedShiftCalendarWeek(
+          Long employeeId, ShiftRequest approvedShiftRequest) {
+    LocalDate startOfShiftCalenderWeek = approvedShiftRequest.getShiftDate().with(DayOfWeek.MONDAY);
+    LocalDate endOfShiftCalendarWeek = approvedShiftRequest.getShiftDate().with(DayOfWeek.SUNDAY);
+
+    return scheduleRepository.findByEmployeeIdAndCalendarWeek(
+            employeeId, startOfShiftCalenderWeek, endOfShiftCalendarWeek);
+  }
+
+  // TODO: enhance this method further
+  private Schedule createNewScheduleForApprovedShiftCalendarWeek(
+          ShiftRequest approvedShiftRequest, Long employeeId) {
+    return new Schedule()
+            .builder()
+            .employeeId(employeeId)
+            .startDate(approvedShiftRequest.getShiftDate())
+            .endDate(
+                    approvedShiftRequest
+                            .getShiftDate()
+                            .plus(
+                                    approvedShiftRequest.getShiftLengthInHours(),
+                                    ChronoUnit.HOURS)) // TODO: find another way to do this
+            .totalWorkingHours(approvedShiftRequest.getShiftLengthInHours())
+            .build();
+  }
+
+  private Schedule addNewShiftEntryToSchedule(
+          ShiftRequest approvedShiftRequest, Optional<Schedule> schedulesInApprovedShiftCalendarWeek) {
+    Schedule schedule = schedulesInApprovedShiftCalendarWeek.get();
+    schedule.getShifts().add(ShiftEntry.from(approvedShiftRequest));
+    return schedule;
+  }
+
 }

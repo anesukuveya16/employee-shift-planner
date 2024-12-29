@@ -39,10 +39,12 @@ public interface ShiftRequestService {
   /**
    * Approves a shift request by ID.
    *
+   * @param employeeId
    * @param shiftRequestId the ID of the shift request to approve
    * @return the updated shift request
    */
-  ShiftRequest approveShiftRequest(Long shiftRequestId) throws ShiftRequestNotFoundException;
+  ShiftRequest approveShiftRequest(Long employeeId, Long shiftRequestId)
+      throws ShiftRequestNotFoundException;
 
   /**
    * Rejects a shift request by ID.

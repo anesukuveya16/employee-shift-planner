@@ -38,7 +38,7 @@ public class ShiftRequestServiceImpl implements ShiftRequestService {
    * <li>2. Update the schedule to include the approved ShiftRequest, which is now a ShiftEntry.
    */
   @Override
-  public ShiftRequest approveShiftRequest(Long shiftRequestId)
+  public ShiftRequest approveShiftRequest(Long employeeId, Long shiftRequestId)
       throws ShiftRequestNotFoundException {
 
     ShiftRequest shiftRequest =
@@ -46,7 +46,7 @@ public class ShiftRequestServiceImpl implements ShiftRequestService {
     shiftRequest.setStatus(ShiftRequestStatus.APPROVED);
     ShiftRequest approvedShiftRequest = shiftRequestRepository.save(shiftRequest);
 
-    scheduleService.updateSchedule(approvedShiftRequest);
+    scheduleService.addShiftToSchedule(1L, approvedShiftRequest);
 
     return approvedShiftRequest;
   }

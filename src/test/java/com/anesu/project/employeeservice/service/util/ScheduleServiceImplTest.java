@@ -7,6 +7,8 @@ import static org.mockito.Mockito.*;
 import com.anesu.project.employeeservice.entity.schedule.Schedule;
 import com.anesu.project.employeeservice.entity.shift.ShiftEntry;
 import com.anesu.project.employeeservice.entity.shift.ShiftRequest;
+import com.anesu.project.employeeservice.entity.shift.ShiftRequestStatus;
+import com.anesu.project.employeeservice.entity.shift.ShiftType;
 import com.anesu.project.employeeservice.model.repository.ScheduleRepository;
 import com.anesu.project.employeeservice.service.ScheduleServiceImpl;
 import com.anesu.project.employeeservice.service.exception.InvalidScheduleException;
@@ -21,7 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class SchedulingServiceImplTest {
+class ScheduleServiceImplTest {
 
   @Mock private ScheduleRepository scheduleRepositoryMock;
   @Mock private ScheduleValidator scheduleValidatorMock;
@@ -68,7 +70,7 @@ class SchedulingServiceImplTest {
   }
 
   @Test
-  void shouldUpdateGivenSchedule() {
+  void shouldUpdateGivenExistingScheduleWhenEmployeeMakesChanges() {
     // Given
     LocalDate startDate = LocalDate.now().plusDays(2);
     Schedule oldSchedule = givenScheduleWithDurationAndStartDate(4, startDate);
@@ -88,6 +90,45 @@ class SchedulingServiceImplTest {
     verify(scheduleRepositoryMock, times(1)).findById(oldSchedule.getId());
     verify(scheduleValidatorMock).validate(oldSchedule);
     verify(scheduleRepositoryMock, times(1)).save(oldSchedule);
+  }
+
+  @Test
+  void shouldOnlyAddApprovedShiftRequestToSchedule() {
+    // Given
+    ShiftRequest approvedShiftRequest = givenShiftRequestWithStatus(ShiftRequestStatus.PENDING);
+
+    // When
+    InvalidScheduleException invalidScheduleException =
+        assertThrows(
+            InvalidScheduleException.class,
+            () ->
+                cut.addShiftToSchedule(approvedShiftRequest.getEmployeeId(), approvedShiftRequest));
+
+    // Then
+    assertThat(invalidScheduleException.getMessage())
+        .isEqualTo(
+            "Invalid schedule operation. ShiftRequest with ID: "
+                + approvedShiftRequest.getId()
+                + " is PENDING. Only approved shifts can be added to the schedule.");
+  }
+
+  @Test
+  void shouldAddApprovedShiftRequestToSchedule() {
+    // Given
+    ShiftRequest approvedShiftRequest = givenShiftRequestWithStatus(ShiftRequestStatus.APPROVED);
+
+    // When
+    Schedule updatedSchedule =
+        cut.addShiftToSchedule(approvedShiftRequest.getEmployeeId(), approvedShiftRequest);
+
+    // Then
+    List<ShiftEntry> shifts = updatedSchedule.getShifts();
+    assertThat(shifts).hasSize(1);
+    ShiftEntry shiftEntry = shifts.getFirst();
+    assertThat(shiftEntry.getShiftDate()).isEqualTo(approvedShiftRequest.getShiftDate());
+    assertThat(shiftEntry.getWorkingHours())
+        .isEqualTo(approvedShiftRequest.getShiftLengthInHours());
+    assertThat(shiftEntry.getShiftType()).isEqualTo(approvedShiftRequest.getShiftType());
   }
 
   @Test
@@ -154,14 +195,15 @@ class SchedulingServiceImplTest {
     return schedule;
   }
 
-//  private void verifyShiftRequestIsAddedToScheduleAsShiftEntry(ShiftRequest shiftRequest) {
-//    Schedule schedule = scheduleCaptor.getValue();
-//    List<ShiftEntry> shifts = schedule.getShifts();
-//    assertThat(shifts).hasSize(1);
-//
-//    ShiftEntry shiftEntry = shifts.getFirst();
-//    assertThat(shiftEntry.getShiftDate()).isEqualTo(shiftRequest.getShiftDate());
-//    assertThat(shiftEntry.getWorkingHours()).isEqualTo(shiftRequest.getShiftLengthInHours());
-//    assertThat(shiftEntry.getShiftType()).isEqualTo(shiftRequest.getShiftType());
-//  }
+  private ShiftRequest givenShiftRequestWithStatus(ShiftRequestStatus status) {
+    Long shiftRequestId = 1L;
+    ShiftRequest shiftRequest = new ShiftRequest();
+    shiftRequest.setId(shiftRequestId);
+    shiftRequest.setStatus(status);
+    shiftRequest.setShiftLengthInHours(6L);
+    shiftRequest.setShiftType(ShiftType.NIGHT_SHIFT);
+    shiftRequest.setShiftDate(LocalDate.of(2024, 12, 29));
+
+    return shiftRequest;
+  }
 }

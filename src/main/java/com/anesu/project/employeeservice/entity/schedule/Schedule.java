@@ -21,7 +21,9 @@ public class Schedule {
   private Long employeeId;
   private LocalDate startDate;
   private LocalDate endDate;
-  private Integer totalWorkingHours;
+  private Long totalWorkingHours;
+
+  // TODO: REMOVE these 2 but first check the rest of the class
   private int numberOfVacationDaysLeft;
   private int numberOfVacationDaysUsed;
 
