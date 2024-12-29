@@ -4,7 +4,7 @@ import com.anesu.project.employeeservice.entity.schedule.Schedule;
 import com.anesu.project.employeeservice.entity.shift.ShiftEntry;
 import com.anesu.project.employeeservice.service.exception.InvalidScheduleException;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
@@ -55,9 +55,10 @@ public class ScheduleValidator {
     }
   }
 
-  private long calculateWeeklyHours(Map<LocalDate, Long> dailyWorkingHours, LocalDate date) {
-    LocalDate weekStart = date.with(DayOfWeek.MONDAY);
-    LocalDate weekEnd = date.with(DayOfWeek.SUNDAY);
+  private long calculateWeeklyHours(
+      Map<LocalDateTime, Long> dailyWorkingHours, LocalDateTime date) {
+    LocalDateTime weekStart = date.with(DayOfWeek.MONDAY);
+    LocalDateTime weekEnd = date.with(DayOfWeek.SUNDAY);
 
     return dailyWorkingHours.entrySet().stream()
         .filter(entry -> !entry.getKey().isBefore(weekStart) && !entry.getKey().isAfter(weekEnd))

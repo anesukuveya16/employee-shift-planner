@@ -11,7 +11,7 @@ import com.anesu.project.employeeservice.service.exception.ScheduleNotFoundExcep
 import com.anesu.project.employeeservice.service.util.ScheduleValidator;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -70,7 +70,6 @@ public class ScheduleServiceImpl implements ScheduleService {
     return scheduleRepository.save(schedule);
   }
 
-
   @Override
   public Optional<Schedule> getScheduleById(Long scheduleId) {
     return scheduleRepository.findById(scheduleId);
@@ -102,43 +101,45 @@ public class ScheduleServiceImpl implements ScheduleService {
   private void validateApprovedShiftRequest(ShiftRequest approvedShiftRequest) {
     if (!ShiftRequestStatus.APPROVED.equals(approvedShiftRequest.getStatus())) {
       throw new InvalidScheduleException(
-              "Invalid schedule operation. ShiftRequest with ID: "
-                      + approvedShiftRequest.getId()
-                      + " is PENDING. Only approved shifts can be added to the schedule.");
+          "Invalid schedule operation. ShiftRequest with ID: "
+              + approvedShiftRequest.getId()
+              + " is PENDING. Only approved shifts can be added to the schedule.");
     }
   }
 
   private Optional<Schedule> getScheduleInApprovedShiftCalendarWeek(
-          Long employeeId, ShiftRequest approvedShiftRequest) {
-    LocalDate startOfShiftCalenderWeek = approvedShiftRequest.getShiftDate().with(DayOfWeek.MONDAY);
-    LocalDate endOfShiftCalendarWeek = approvedShiftRequest.getShiftDate().with(DayOfWeek.SUNDAY);
+      Long employeeId, ShiftRequest approvedShiftRequest) {
+    LocalDateTime startOfShiftCalenderWeek =
+        approvedShiftRequest.getShiftDate().with(DayOfWeek.MONDAY);
+    LocalDateTime endOfShiftCalendarWeek =
+        approvedShiftRequest.getShiftDate().with(DayOfWeek.SUNDAY);
 
     return scheduleRepository.findByEmployeeIdAndCalendarWeek(
-            employeeId, startOfShiftCalenderWeek, endOfShiftCalendarWeek);
+        employeeId, startOfShiftCalenderWeek, endOfShiftCalendarWeek);
   }
 
   // TODO: enhance this method further
   private Schedule createNewScheduleForApprovedShiftCalendarWeek(
-          ShiftRequest approvedShiftRequest, Long employeeId) {
+      ShiftRequest approvedShiftRequest, Long employeeId) {
     return new Schedule()
-            .builder()
-            .employeeId(employeeId)
-            .startDate(approvedShiftRequest.getShiftDate())
-            .endDate(
-                    approvedShiftRequest
-                            .getShiftDate()
-                            .plus(
-                                    approvedShiftRequest.getShiftLengthInHours(),
-                                    ChronoUnit.HOURS)) // TODO: find another way to do this
-            .totalWorkingHours(approvedShiftRequest.getShiftLengthInHours())
-            .build();
+        .builder()
+        .employeeId(employeeId)
+        .startDate(approvedShiftRequest.getShiftDate())
+        .endDate(determineShiftEndDate(approvedShiftRequest))
+        .totalWorkingHours(approvedShiftRequest.getShiftLengthInHours())
+        .build();
+  }
+
+  private LocalDateTime determineShiftEndDate(ShiftRequest approvedShiftRequest) {
+    return approvedShiftRequest
+        .getShiftDate()
+        .plusHours(approvedShiftRequest.getShiftLengthInHours());
   }
 
   private Schedule addNewShiftEntryToSchedule(
-          ShiftRequest approvedShiftRequest, Optional<Schedule> schedulesInApprovedShiftCalendarWeek) {
+      ShiftRequest approvedShiftRequest, Optional<Schedule> schedulesInApprovedShiftCalendarWeek) {
     Schedule schedule = schedulesInApprovedShiftCalendarWeek.get();
     schedule.getShifts().add(ShiftEntry.from(approvedShiftRequest));
     return schedule;
   }
-
 }

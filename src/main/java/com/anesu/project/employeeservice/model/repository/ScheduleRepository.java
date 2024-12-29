@@ -30,5 +30,5 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
    * @return a matching schedule.
    */
   Optional<Schedule> findByEmployeeIdAndCalendarWeek(
-      Long employeeId, LocalDate startOfCalenderWeek, LocalDate endOfCalenderWeek);
+      Long employeeId, LocalDateTime startOfCalenderWeek, LocalDateTime endOfCalenderWeek);
 }

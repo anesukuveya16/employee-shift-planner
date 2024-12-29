@@ -1,8 +1,11 @@
 package com.anesu.project.employeeservice.entity.shift;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
-import lombok.*;
+import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @ToString
