@@ -18,7 +18,7 @@ public class ShiftRequest {
   private Long id;
 
   private Long employeeId;
-  private LocalDate shiftDate;
+  private LocalDateTime shiftDate;
 
   @Enumerated(EnumType.STRING)
   private ShiftRequestStatus status;
@@ -37,7 +37,7 @@ public class ShiftRequest {
     return employeeId;
   }
 
-  public LocalDate getShiftDate() {
+  public LocalDateTime getShiftDate() {
     return shiftDate;
   }
 
@@ -65,7 +65,7 @@ public class ShiftRequest {
     this.employeeId = employeeId;
   }
 
-  public void setShiftDate(LocalDate shiftDate) {
+  public void setShiftDate(LocalDateTime shiftDate) {
     this.shiftDate = shiftDate;
   }
 

@@ -1,7 +1,7 @@
 package com.anesu.project.employeeservice.entity.shift;
 
 import jakarta.persistence.Embeddable;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.Builder;
 
 /**
@@ -12,7 +12,7 @@ import lombok.Builder;
 @Embeddable
 public class ShiftEntry {
   private Long shiftId;
-  private LocalDate shiftDate;
+  private LocalDateTime shiftDate;
   private ShiftType shiftType;
   private Long workingHours;
 
@@ -34,11 +34,11 @@ public class ShiftEntry {
     this.shiftId = shiftId;
   }
 
-  public LocalDate getShiftDate() {
+  public LocalDateTime getShiftDate() {
     return shiftDate;
   }
 
-  public void setShiftDate(LocalDate date) {
+  public void setShiftDate(LocalDateTime date) {
     this.shiftDate = date;
   }
 

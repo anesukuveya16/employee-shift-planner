@@ -12,6 +12,7 @@ import com.anesu.project.employeeservice.service.util.ScheduleValidator;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -118,15 +119,19 @@ public class ScheduleServiceImpl implements ScheduleService {
         employeeId, startOfShiftCalenderWeek, endOfShiftCalendarWeek);
   }
 
-  // TODO: enhance this method further
   private Schedule createNewScheduleForApprovedShiftCalendarWeek(
       ShiftRequest approvedShiftRequest, Long employeeId) {
+
+    List<ShiftEntry> shiftEntries = new ArrayList<>();
+    shiftEntries.add(ShiftEntry.from(approvedShiftRequest));
+
     return new Schedule()
         .builder()
         .employeeId(employeeId)
         .startDate(approvedShiftRequest.getShiftDate())
         .endDate(determineShiftEndDate(approvedShiftRequest))
         .totalWorkingHours(approvedShiftRequest.getShiftLengthInHours())
+        .shifts(shiftEntries)
         .build();
   }
 

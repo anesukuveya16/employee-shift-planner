@@ -41,13 +41,13 @@ public class ScheduleValidator {
     }
 
     // Validate working hours per week
-    Map<LocalDate, Long> dailyWorkingHours =
+    Map<LocalDateTime, Long> dailyWorkingHours =
         schedule.getShifts().stream()
             .collect(
                 Collectors.groupingBy(
                     ShiftEntry::getShiftDate, Collectors.summingLong(ShiftEntry::getWorkingHours)));
 
-    for (LocalDate date : dailyWorkingHours.keySet()) {
+    for (LocalDateTime date : dailyWorkingHours.keySet()) {
       long weeklyHours = calculateWeeklyHours(dailyWorkingHours, date);
       if (weeklyHours > MAX_WORKING_HOURS_PER_WEEK) {
         throw new InvalidScheduleException("Weekly working hours exceed maximum limit");
