@@ -4,6 +4,7 @@ import com.anesu.project.employeeservice.entity.shift.ShiftEntry;
 import com.anesu.project.employeeservice.entity.vacation.VacationRequest;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.*;
 
@@ -19,9 +20,9 @@ public class Schedule {
   private Long id;
 
   private Long employeeId;
-  private LocalDate startDate;
-  private LocalDate endDate;
-  private Integer totalWorkingHours;
+  private LocalDateTime startDate;
+  private LocalDateTime endDate;
+  private Long totalWorkingHours;
 
   @ElementCollection private List<ShiftEntry> shifts;
 
@@ -29,11 +30,13 @@ public class Schedule {
   @JoinColumn(name = "schedule_id")
   private List<VacationRequest> vacations;
 
-  public List<LocalDate> getShiftsInRange(LocalDate rangeStart, LocalDate rangeEnd) {
+  public List<LocalDateTime> getShiftsInRange(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
     return shifts.stream()
         .filter(
-            shift -> !shift.getDate().isBefore(rangeStart) && !shift.getDate().isAfter(rangeEnd))
-        .map(ShiftEntry::getDate)
+            shift ->
+                !shift.getShiftDate().isBefore(rangeStart)
+                    && !shift.getShiftDate().isAfter(rangeEnd))
+        .map(ShiftEntry::getShiftDate)
         .toList();
   }
 

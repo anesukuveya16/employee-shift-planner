@@ -1,31 +1,45 @@
 package com.anesu.project.employeeservice.entity.shift;
 
 import jakarta.persistence.Embeddable;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import lombok.Builder;
 
+/**
+ * A ShiftEntry is an entry in the schedule that is equivalent to a {@link ShiftRequest} with {@link
+ * ShiftRequestStatus} APPROVED.
+ */
+@Builder
 @Embeddable
 public class ShiftEntry {
-  private Integer shiftId;
-  private LocalDate date;
+  private Long shiftId;
+  private LocalDateTime shiftDate;
   private ShiftType shiftType;
-  private Integer workingHours;
+  private Long workingHours;
 
   public ShiftEntry() {}
 
-  public Integer getShiftId() {
+  public static ShiftEntry from(ShiftRequest approvedShiftRequest) {
+    return builder()
+        .shiftDate(approvedShiftRequest.getShiftDate())
+        .shiftType(approvedShiftRequest.getShiftType())
+        .workingHours(approvedShiftRequest.getShiftLengthInHours())
+        .build();
+  }
+
+  public Long getShiftId() {
     return shiftId;
   }
 
-  public void setShiftId(Integer shiftId) {
+  public void setShiftId(Long shiftId) {
     this.shiftId = shiftId;
   }
 
-  public LocalDate getDate() {
-    return date;
+  public LocalDateTime getShiftDate() {
+    return shiftDate;
   }
 
-  public void setDate(LocalDate date) {
-    this.date = date;
+  public void setShiftDate(LocalDateTime date) {
+    this.shiftDate = date;
   }
 
   public ShiftType getShiftType() {
@@ -36,11 +50,11 @@ public class ShiftEntry {
     this.shiftType = shiftType;
   }
 
-  public Integer getWorkingHours() {
+  public Long getWorkingHours() {
     return workingHours;
   }
 
-  public void setWorkingHours(Integer workingHours) {
+  public void setWorkingHours(Long workingHours) {
     this.workingHours = workingHours;
   }
 }

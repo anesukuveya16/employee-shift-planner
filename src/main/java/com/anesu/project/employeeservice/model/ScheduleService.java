@@ -1,52 +1,64 @@
 package com.anesu.project.employeeservice.model;
 
 import com.anesu.project.employeeservice.entity.schedule.Schedule;
+import com.anesu.project.employeeservice.entity.shift.ShiftRequest;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 /** Service interface for managing employee schedules. */
 public interface ScheduleService {
 
   /**
-   * Creates a new schedule for an employee.
+   * Creates a new {@link Schedule} for an employee.
    *
-   * @param schedule the schedule to be created
-   * @return the created schedule
+   * @param schedule the {@link Schedule} to be created
+   * @return the created {@link Schedule}
    */
   Schedule createSchedule(Schedule schedule);
 
   /**
-   * Updates an existing schedule.
+   * Updates an existing {@link Schedule} that was already approved.
    *
-   * @param scheduleId the ID of the schedule to update
-   * @param updatedSchedule the updated schedule data
-   * @return the updated schedule
+   * @param scheduleId the ID of the {@link Schedule} to update
+   * @param updatedSchedule the updated {@link Schedule} data
+   * @return the updated {@link Schedule}
    */
   Schedule updateSchedule(Long scheduleId, Schedule updatedSchedule);
 
   /**
-   * Retrieves a schedule by its ID.
+   * Updates the {@link Schedule} to add a new shift entry from the just approved {@link
+   * ShiftRequest}.
    *
-   * @param scheduleId the ID of the schedule to retrieve
-   * @return the found schedule, or null if not found
+   * @param employeeId
+   * @param approvedShiftRequest the approved {@link ShiftRequest}
+   * @return the updated {@link Schedule}
    */
-  Schedule getScheduleById(Long scheduleId);
+  Schedule addShiftToSchedule(Long employeeId, ShiftRequest approvedShiftRequest);
+
+  /**
+   * Retrieves a {@link Schedule} by its ID.
+   *
+   * @param scheduleId the ID of the {@link Schedule} to retrieve
+   * @return the found {@link Schedule}, or {@code null} if not found
+   */
+  Optional<Schedule> getScheduleById(Long scheduleId);
 
   /**
    * Retrieves schedules for a specific employee within a date range.
    *
    * @param employeeId the ID of the employee
-   * @param startDate the start of the date range
-   * @param endDate the end of the date range
-   * @return a list of matching schedules
+   * @param startDate the start of the {@link LocalDate} range
+   * @param endDate the end of the {@link LocalDate} range
+   * @return a list of matching {@link Schedule}s
    */
-  List<Schedule> getSchedulesByEmployeeAndDateRange(
+  Optional<List<Schedule>> getSchedulesByEmployeeAndDateRange(
       Long employeeId, LocalDate startDate, LocalDate endDate);
 
   /**
-   * Deletes a schedule by its ID.
+   * Deletes a {@link Schedule} by its ID.
    *
-   * @param scheduleId the ID of the schedule to delete
+   * @param scheduleId the ID of the {@link Schedule} to delete
    */
   void deleteSchedule(Long scheduleId);
 }

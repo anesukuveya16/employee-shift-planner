@@ -1,8 +1,11 @@
 package com.anesu.project.employeeservice.entity.shift;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
-import lombok.*;
+import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @ToString
@@ -15,7 +18,7 @@ public class ShiftRequest {
   private Long id;
 
   private Long employeeId;
-  private LocalDate shiftDate;
+  private LocalDateTime shiftDate;
 
   @Enumerated(EnumType.STRING)
   private ShiftRequestStatus status;
@@ -23,6 +26,8 @@ public class ShiftRequest {
   private String rejectionReason;
 
   private Long shiftLengthInHours;
+
+  private ShiftType shiftType;
 
   public Long getId() {
     return id;
@@ -32,7 +37,7 @@ public class ShiftRequest {
     return employeeId;
   }
 
-  public LocalDate getShiftDate() {
+  public LocalDateTime getShiftDate() {
     return shiftDate;
   }
 
@@ -60,7 +65,7 @@ public class ShiftRequest {
     this.employeeId = employeeId;
   }
 
-  public void setShiftDate(LocalDate shiftDate) {
+  public void setShiftDate(LocalDateTime shiftDate) {
     this.shiftDate = shiftDate;
   }
 
@@ -70,5 +75,13 @@ public class ShiftRequest {
 
   public void setRejectionReason(String rejectionReason) {
     this.rejectionReason = rejectionReason;
+  }
+
+  public ShiftType getShiftType() {
+    return shiftType;
+  }
+
+  public void setShiftType(ShiftType shiftType) {
+    this.shiftType = shiftType;
   }
 }

@@ -6,6 +6,8 @@ import static org.mockito.Mockito.*;
 
 import com.anesu.project.employeeservice.entity.shift.ShiftRequest;
 import com.anesu.project.employeeservice.entity.shift.ShiftRequestStatus;
+import com.anesu.project.employeeservice.entity.shift.ShiftType;
+import com.anesu.project.employeeservice.model.ScheduleService;
 import com.anesu.project.employeeservice.model.repository.ShiftRequestRepository;
 import com.anesu.project.employeeservice.service.exception.ShiftRequestNotFoundException;
 import com.anesu.project.employeeservice.service.exception.ShiftValidationException;
@@ -22,11 +24,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ShiftRequestServiceImplTest {
 
   @Mock private ShiftRequestRepository shiftRequestRepositoryMock;
+  @Mock private ScheduleService scheduleServiceMock;
   private ShiftRequestServiceImpl cut;
 
   @BeforeEach
   void setUp() {
-    cut = new ShiftRequestServiceImpl(shiftRequestRepositoryMock, new ShiftRequestValidator());
+    cut =
+        new ShiftRequestServiceImpl(
+            shiftRequestRepositoryMock, new ShiftRequestValidator(), scheduleServiceMock);
   }
 
   @Test
@@ -54,28 +59,35 @@ class ShiftRequestServiceImplTest {
     Long shiftRequestId = 1L;
     ShiftRequest shiftRequest = new ShiftRequest();
     shiftRequest.setId(shiftRequestId);
-    shiftRequest.setStatus(ShiftRequestStatus.PENDING);
-
-    when(shiftRequestRepositoryMock.findById(shiftRequestId)).thenReturn(Optional.of(shiftRequest));
+    ShiftRequestStatus status = ShiftRequestStatus.PENDING;
+    shiftRequest.setStatus(status);
+    shiftRequest.setShiftLengthInHours(6L);
+    shiftRequest.setShiftType(ShiftType.NIGHT_SHIFT);
+    shiftRequest.setEmployeeId(155L);
+    when(shiftRequestRepositoryMock.findByIdAndStatus(shiftRequestId, status))
+        .thenReturn(Optional.of(shiftRequest));
     when(shiftRequestRepositoryMock.save(any(ShiftRequest.class))).thenReturn(shiftRequest);
 
     // When
-    ShiftRequest approvedShiftRequest = cut.approveShiftRequest(shiftRequestId);
+    ShiftRequest approvedShiftRequest =
+        cut.approveShiftRequest(shiftRequest.getEmployeeId(), shiftRequestId);
 
     // Then
-    assertEquals(ShiftRequestStatus.APPROVED, approvedShiftRequest.getStatus());
-    verify(shiftRequestRepositoryMock, times(1)).save(shiftRequest);
+    assertThat(approvedShiftRequest.getStatus()).isEqualTo(ShiftRequestStatus.APPROVED);
+
+    verifyInteractionsWithDependencies(shiftRequest, approvedShiftRequest);
   }
 
   @Test
   void approveShiftRequest_ShouldThrowException_WhenShiftRequestNotFound() {
     // Given
     Long shiftRequestId = 1L;
-    when(shiftRequestRepositoryMock.findById(shiftRequestId)).thenReturn(Optional.empty());
+    when(shiftRequestRepositoryMock.findByIdAndStatus(shiftRequestId, ShiftRequestStatus.PENDING))
+        .thenReturn(Optional.empty());
 
     // When & Then
     assertThrows(
-        ShiftRequestNotFoundException.class, () -> cut.approveShiftRequest(shiftRequestId));
+        ShiftRequestNotFoundException.class, () -> cut.approveShiftRequest(1L, shiftRequestId));
   }
 
   @Test
@@ -85,9 +97,11 @@ class ShiftRequestServiceImplTest {
     String rejectionReason = "Not required";
     ShiftRequest shiftRequest = new ShiftRequest();
     shiftRequest.setId(shiftRequestId);
-    shiftRequest.setStatus(ShiftRequestStatus.PENDING);
+    ShiftRequestStatus status = ShiftRequestStatus.PENDING;
+    shiftRequest.setStatus(status);
 
-    when(shiftRequestRepositoryMock.findById(shiftRequestId)).thenReturn(Optional.of(shiftRequest));
+    when(shiftRequestRepositoryMock.findByIdAndStatus(shiftRequestId, status))
+        .thenReturn(Optional.of(shiftRequest));
     when(shiftRequestRepositoryMock.save(any(ShiftRequest.class))).thenReturn(shiftRequest);
 
     // When
@@ -100,15 +114,17 @@ class ShiftRequestServiceImplTest {
   }
 
   @Test
-  void getShiftRequestById_ShouldThrowException_WhenShiftRequestNotFound() {
+  void getShiftRequestById_ShouldThrowException_WhenShiftRequestNotFoundAndStatus() {
     // Given
     Long shiftRequestId = 1L;
-
-    when(shiftRequestRepositoryMock.findById(shiftRequestId)).thenReturn(Optional.empty());
+    ShiftRequestStatus status = ShiftRequestStatus.PENDING;
+    when(shiftRequestRepositoryMock.findByIdAndStatus(shiftRequestId, status))
+        .thenReturn(Optional.empty());
 
     // When & Then
     assertThrows(
-        ShiftRequestNotFoundException.class, () -> cut.getShiftRequestById(shiftRequestId));
+        ShiftRequestNotFoundException.class,
+        () -> cut.getShiftRequestByIdAndStatus(shiftRequestId, status));
   }
 
   @Test
@@ -175,5 +191,12 @@ class ShiftRequestServiceImplTest {
     assertThat(shiftValidationException.getMessage())
         .isEqualTo(
             "New shift request violates working hours. Employee ID: 1 already has 1 hours for this shift scheduled/recorded. Maximum working hours should not exceed : 10 hours.");
+  }
+
+  private void verifyInteractionsWithDependencies(
+      ShiftRequest shiftRequest, ShiftRequest approvedShiftRequest) {
+    verify(shiftRequestRepositoryMock, times(1)).save(shiftRequest);
+    verify(scheduleServiceMock)
+        .addShiftToSchedule(shiftRequest.getEmployeeId(), approvedShiftRequest);
   }
 }

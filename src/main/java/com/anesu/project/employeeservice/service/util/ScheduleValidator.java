@@ -4,7 +4,7 @@ import com.anesu.project.employeeservice.entity.schedule.Schedule;
 import com.anesu.project.employeeservice.entity.shift.ShiftEntry;
 import com.anesu.project.employeeservice.service.exception.InvalidScheduleException;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
@@ -41,27 +41,28 @@ public class ScheduleValidator {
     }
 
     // Validate working hours per week
-    Map<LocalDate, Integer> dailyWorkingHours =
+    Map<LocalDateTime, Long> dailyWorkingHours =
         schedule.getShifts().stream()
             .collect(
                 Collectors.groupingBy(
-                    ShiftEntry::getDate, Collectors.summingInt(ShiftEntry::getWorkingHours)));
+                    ShiftEntry::getShiftDate, Collectors.summingLong(ShiftEntry::getWorkingHours)));
 
-    for (LocalDate date : dailyWorkingHours.keySet()) {
-      int weeklyHours = calculateWeeklyHours(dailyWorkingHours, date);
+    for (LocalDateTime date : dailyWorkingHours.keySet()) {
+      long weeklyHours = calculateWeeklyHours(dailyWorkingHours, date);
       if (weeklyHours > MAX_WORKING_HOURS_PER_WEEK) {
         throw new InvalidScheduleException("Weekly working hours exceed maximum limit");
       }
     }
   }
 
-  private int calculateWeeklyHours(Map<LocalDate, Integer> dailyWorkingHours, LocalDate date) {
-    LocalDate weekStart = date.with(DayOfWeek.MONDAY);
-    LocalDate weekEnd = date.with(DayOfWeek.SUNDAY);
+  private long calculateWeeklyHours(
+      Map<LocalDateTime, Long> dailyWorkingHours, LocalDateTime date) {
+    LocalDateTime weekStart = date.with(DayOfWeek.MONDAY);
+    LocalDateTime weekEnd = date.with(DayOfWeek.SUNDAY);
 
     return dailyWorkingHours.entrySet().stream()
         .filter(entry -> !entry.getKey().isBefore(weekStart) && !entry.getKey().isAfter(weekEnd))
-        .mapToInt(Map.Entry::getValue)
+        .mapToLong(Map.Entry::getValue)
         .sum();
   }
 }
