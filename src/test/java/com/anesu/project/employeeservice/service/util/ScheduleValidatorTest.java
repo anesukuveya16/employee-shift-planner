@@ -7,6 +7,7 @@ import com.anesu.project.employeeservice.entity.schedule.Schedule;
 import com.anesu.project.employeeservice.entity.shift.ShiftEntry;
 import com.anesu.project.employeeservice.service.exception.InvalidScheduleException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,8 +18,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ScheduleValidatorTest {
 
-  private static final LocalDate START_DATE = LocalDate.of(2024, 12, 20);
-  private static final LocalDate END_DATE = LocalDate.of(2024, 12, 28);
+  private static final LocalDateTime START_DATE = LocalDateTime.from(LocalDate.of(2024, 12, 20).atTime(10,0));
+  private static final LocalDateTime END_DATE = LocalDateTime.from(LocalDate.of(2024, 12, 28).atTime(18,0,0));
 
   private ScheduleValidator cut;
 
@@ -111,7 +112,7 @@ class ScheduleValidatorTest {
   }
 
   private Schedule givenSchedule(
-      LocalDate startDate, LocalDate endDate, List<ShiftEntry> shiftEntries) {
+          LocalDateTime startDate, LocalDateTime endDate, List<ShiftEntry> shiftEntries) {
     Schedule schedule = new Schedule();
     schedule.setStartDate(startDate);
     schedule.setEndDate(endDate);
@@ -126,7 +127,7 @@ class ScheduleValidatorTest {
     for (int i = 0; i < 7; i++) {
       ShiftEntry shiftEntry = new ShiftEntry();
       shiftEntry.setWorkingHours(6L);
-      shiftEntry.setShiftDate(LocalDate.of(2024, 12, 28));
+      shiftEntry.setShiftDate(LocalDateTime.from(LocalDate.of(2024, 12, 28).atTime(10,0)));
 
       shiftEntries.add(shiftEntry);
     }

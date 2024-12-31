@@ -13,6 +13,7 @@ import com.anesu.project.employeeservice.service.exception.ShiftRequestNotFoundE
 import com.anesu.project.employeeservice.service.exception.ShiftValidationException;
 import com.anesu.project.employeeservice.service.util.ShiftRequestValidator;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,7 @@ class ShiftRequestServiceImplTest {
     // Given
     ShiftRequest shiftRequest = new ShiftRequest();
     shiftRequest.setEmployeeId(1L);
-    shiftRequest.setShiftDate(LocalDate.now());
+    shiftRequest.setShiftDate(LocalDateTime.now());
 
     when(shiftRequestRepositoryMock.save(any(ShiftRequest.class))).thenReturn(shiftRequest);
 
@@ -63,7 +64,7 @@ class ShiftRequestServiceImplTest {
     shiftRequest.setStatus(status);
     shiftRequest.setShiftLengthInHours(6L);
     shiftRequest.setShiftType(ShiftType.NIGHT_SHIFT);
-    shiftRequest.setEmployeeId(155L);
+    shiftRequest.setEmployeeId(3L);
     when(shiftRequestRepositoryMock.findByIdAndStatus(shiftRequestId, status))
         .thenReturn(Optional.of(shiftRequest));
     when(shiftRequestRepositoryMock.save(any(ShiftRequest.class))).thenReturn(shiftRequest);
@@ -87,7 +88,7 @@ class ShiftRequestServiceImplTest {
 
     // When & Then
     assertThrows(
-        ShiftRequestNotFoundException.class, () -> cut.approveShiftRequest(1L, shiftRequestId));
+        ShiftRequestNotFoundException.class, () -> cut.approveShiftRequest(15L, shiftRequestId));
   }
 
   @Test
@@ -131,7 +132,7 @@ class ShiftRequestServiceImplTest {
   void
       validateShiftRequest_ShouldNotThrowException_WhenShiftRequestHasOverlap_ButDoesNotExceedMaximumLegalWorkingsHours() {
     // Given
-    LocalDate shiftDate = LocalDate.now();
+    LocalDateTime shiftDate = LocalDateTime.now();
 
     ShiftRequest shiftRequest = new ShiftRequest();
     shiftRequest.setEmployeeId(1L);
@@ -149,7 +150,7 @@ class ShiftRequestServiceImplTest {
   void validateShiftRequest_ShouldThrowException_WhenShiftRequestResultsInIllegalWorkingTime() {
 
     // Given
-    LocalDate shiftDate = LocalDate.now();
+    LocalDateTime shiftDate = LocalDateTime.now();
     ShiftRequest shiftRequest = new ShiftRequest();
     shiftRequest.setEmployeeId(1L);
     shiftRequest.setShiftDate(shiftDate);
@@ -172,7 +173,7 @@ class ShiftRequestServiceImplTest {
       validateShiftRequest_ShouldThrowException_WhenShiftRequestResultsInIllegalWorkingTimeGivenExistingWorkingHoursLessThanMaxLegalWorkingTime() {
 
     // Given
-    LocalDate shiftDate = LocalDate.now();
+    LocalDateTime shiftDate = LocalDateTime.now();
     ShiftRequest shiftRequest = new ShiftRequest();
     shiftRequest.setEmployeeId(1L);
     shiftRequest.setShiftDate(shiftDate);

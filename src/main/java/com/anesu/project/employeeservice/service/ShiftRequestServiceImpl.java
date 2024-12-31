@@ -8,6 +8,7 @@ import com.anesu.project.employeeservice.model.repository.ShiftRequestRepository
 import com.anesu.project.employeeservice.service.exception.ShiftRequestNotFoundException;
 import com.anesu.project.employeeservice.service.util.ShiftRequestValidator;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class ShiftRequestServiceImpl implements ShiftRequestService {
@@ -46,7 +47,7 @@ public class ShiftRequestServiceImpl implements ShiftRequestService {
     shiftRequest.setStatus(ShiftRequestStatus.APPROVED);
     ShiftRequest approvedShiftRequest = shiftRequestRepository.save(shiftRequest);
 
-    scheduleService.addShiftToSchedule(1L, approvedShiftRequest);
+    scheduleService.addShiftToSchedule(employeeId, approvedShiftRequest);
 
     return approvedShiftRequest;
   }
