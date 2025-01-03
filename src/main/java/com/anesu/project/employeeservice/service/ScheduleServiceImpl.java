@@ -10,7 +10,6 @@ import com.anesu.project.employeeservice.service.exception.InvalidScheduleExcept
 import com.anesu.project.employeeservice.service.exception.ScheduleNotFoundException;
 import com.anesu.project.employeeservice.service.util.ScheduleValidator;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,7 +77,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
   @Override
   public Optional<List<Schedule>> getSchedulesByEmployeeAndDateRange(
-      Long employeeId, LocalDate startDate, LocalDate endDate) {
+      Long employeeId, LocalDateTime startDate, LocalDateTime endDate) {
     return scheduleRepository.findByEmployeeIdAndDateRange(employeeId, startDate, endDate);
   }
 

@@ -14,6 +14,8 @@ import com.anesu.project.employeeservice.service.ScheduleServiceImpl;
 import com.anesu.project.employeeservice.service.exception.InvalidScheduleException;
 import com.anesu.project.employeeservice.service.exception.ScheduleNotFoundException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,7 +74,7 @@ class ScheduleServiceImplTest {
   @Test
   void shouldUpdateGivenExistingScheduleWhenEmployeeMakesChanges() {
     // Given
-    LocalDate startDate = LocalDate.now().plusDays(2);
+    LocalDateTime startDate = LocalDate.now().plusDays(2).atTime(9, 0);
     Schedule oldSchedule = givenScheduleWithDurationAndStartDate(4, startDate);
     Schedule newSchedule = givenScheduleWithDurationAndStartDate(8, startDate);
 
@@ -116,6 +118,8 @@ class ScheduleServiceImplTest {
   void shouldAddApprovedShiftRequestToSchedule() {
     // Given
     ShiftRequest approvedShiftRequest = givenShiftRequestWithStatus(ShiftRequestStatus.APPROVED);
+    when(scheduleRepositoryMock.save(any(Schedule.class)))
+        .thenReturn(createScheduleGivenApprovedShiftRequest(approvedShiftRequest, 1L));
 
     // When
     Schedule updatedSchedule =
@@ -134,7 +138,7 @@ class ScheduleServiceImplTest {
   @Test
   void shouldNotUpdateScheduleAndThrowExceptionWhenScheduleIsNotFound() {
     // Given
-    LocalDate startDate = LocalDate.now().plusDays(2);
+    LocalDateTime startDate = LocalDate.now().plusDays(2).atTime(9, 0);
     Schedule oldSchedule = givenScheduleWithDurationAndStartDate(4, startDate);
     Schedule newSchedule = givenScheduleWithDurationAndStartDate(8, startDate);
 
@@ -154,7 +158,7 @@ class ScheduleServiceImplTest {
   @Test
   void shouldNotUpdateScheduleAndThrowExceptionWhenUpdatedScheduleValidationFails() {
     // Given
-    LocalDate startDate = LocalDate.now().plusDays(2);
+    LocalDateTime startDate = LocalDateTime.now().plusDays(2);
     Schedule oldSchedule = givenScheduleWithDurationAndStartDate(4, startDate);
     Schedule newSchedule = givenScheduleWithDurationAndStartDate(8, startDate);
 
@@ -186,13 +190,28 @@ class ScheduleServiceImplTest {
   }
 
   private Schedule givenScheduleWithDurationAndStartDate(
-      int totalWorkingHours, LocalDate startDate) {
+      long totalWorkingHours, LocalDateTime startDate) {
     Schedule schedule = new Schedule();
     schedule.setEmployeeId(1L);
     schedule.setStartDate(startDate);
-    schedule.setEndDate(LocalDate.now().plusDays(2));
+    schedule.setEndDate(LocalDateTime.from(LocalDate.now().plusDays(2).atTime(15, 0)));
     schedule.setTotalWorkingHours(totalWorkingHours);
     return schedule;
+  }
+
+  private Schedule createScheduleGivenApprovedShiftRequest(
+      ShiftRequest approvedShiftRequest, Long employeeId) {
+
+    List<ShiftEntry> shiftEntries = new ArrayList<>();
+    shiftEntries.add(ShiftEntry.from(approvedShiftRequest));
+
+    return new Schedule()
+        .builder()
+        .employeeId(employeeId)
+        .startDate(approvedShiftRequest.getShiftDate())
+        .totalWorkingHours(approvedShiftRequest.getShiftLengthInHours())
+        .shifts(shiftEntries)
+        .build();
   }
 
   private ShiftRequest givenShiftRequestWithStatus(ShiftRequestStatus status) {
@@ -202,7 +221,7 @@ class ScheduleServiceImplTest {
     shiftRequest.setStatus(status);
     shiftRequest.setShiftLengthInHours(6L);
     shiftRequest.setShiftType(ShiftType.NIGHT_SHIFT);
-    shiftRequest.setShiftDate(LocalDate.of(2024, 12, 29));
+    shiftRequest.setShiftDate(LocalDateTime.from(LocalDate.of(2024, 12, 29).atTime(8, 0)));
 
     return shiftRequest;
   }

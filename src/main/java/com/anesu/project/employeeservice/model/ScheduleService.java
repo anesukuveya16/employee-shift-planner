@@ -2,7 +2,7 @@ package com.anesu.project.employeeservice.model;
 
 import com.anesu.project.employeeservice.entity.schedule.Schedule;
 import com.anesu.project.employeeservice.entity.shift.ShiftRequest;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,12 +48,12 @@ public interface ScheduleService {
    * Retrieves schedules for a specific employee within a date range.
    *
    * @param employeeId the ID of the employee
-   * @param startDate the start of the {@link LocalDate} range
-   * @param endDate the end of the {@link LocalDate} range
+   * @param startDate the start of the {@link LocalDateTime} range
+   * @param endDate the end of the {@link LocalDateTime} range
    * @return a list of matching {@link Schedule}s
    */
   Optional<List<Schedule>> getSchedulesByEmployeeAndDateRange(
-      Long employeeId, LocalDate startDate, LocalDate endDate);
+      Long employeeId, LocalDateTime startDate, LocalDateTime endDate);
 
   /**
    * Deletes a {@link Schedule} by its ID.

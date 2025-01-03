@@ -1,7 +1,6 @@
 package com.anesu.project.employeeservice.model.repository;
 
 import com.anesu.project.employeeservice.entity.schedule.Schedule;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +19,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
    * @return a list of matching schedules
    */
   Optional<List<Schedule>> findByEmployeeIdAndDateRange(
-      Long employeeId, LocalDate startDate, LocalDate endDate);
+      Long employeeId, LocalDateTime startDate, LocalDateTime endDate);
 
   /**
    * Finds schedules for a specific employee within a given calendar week.

@@ -8,7 +8,9 @@ import com.anesu.project.employeeservice.service.exception.VacationRequestNotFou
 import com.anesu.project.employeeservice.service.util.VacationRequestValidator;
 import java.time.LocalDate;
 import java.util.List;
+import org.springframework.stereotype.Service;
 
+@Service
 public class VacationRequestServiceImpl implements VacationRequestService {
 
   private final VacationRequestRepository vacationRequestRepository;

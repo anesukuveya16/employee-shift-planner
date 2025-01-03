@@ -8,9 +8,10 @@ import com.anesu.project.employeeservice.model.repository.ShiftRequestRepository
 import com.anesu.project.employeeservice.service.exception.ShiftRequestNotFoundException;
 import com.anesu.project.employeeservice.service.util.ShiftRequestValidator;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ShiftRequestServiceImpl implements ShiftRequestService {
 
   private final ShiftRequestRepository shiftRequestRepository;

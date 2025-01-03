@@ -18,8 +18,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ScheduleValidatorTest {
 
-  private static final LocalDateTime START_DATE = LocalDateTime.from(LocalDate.of(2024, 12, 20).atTime(10,0));
-  private static final LocalDateTime END_DATE = LocalDateTime.from(LocalDate.of(2024, 12, 28).atTime(18,0,0));
+  private static final LocalDateTime START_DATE =
+      LocalDateTime.from(LocalDate.of(2024, 12, 20).atTime(10, 0));
+  private static final LocalDateTime END_DATE =
+      LocalDateTime.from(LocalDate.of(2024, 12, 28).atTime(18, 0, 0));
 
   private ScheduleValidator cut;
 
@@ -112,7 +114,7 @@ class ScheduleValidatorTest {
   }
 
   private Schedule givenSchedule(
-          LocalDateTime startDate, LocalDateTime endDate, List<ShiftEntry> shiftEntries) {
+      LocalDateTime startDate, LocalDateTime endDate, List<ShiftEntry> shiftEntries) {
     Schedule schedule = new Schedule();
     schedule.setStartDate(startDate);
     schedule.setEndDate(endDate);
@@ -127,7 +129,7 @@ class ScheduleValidatorTest {
     for (int i = 0; i < 7; i++) {
       ShiftEntry shiftEntry = new ShiftEntry();
       shiftEntry.setWorkingHours(6L);
-      shiftEntry.setShiftDate(LocalDateTime.from(LocalDate.of(2024, 12, 28).atTime(10,0)));
+      shiftEntry.setShiftDate(LocalDateTime.from(LocalDate.of(2024, 12, 28).atTime(10, 0)));
 
       shiftEntries.add(shiftEntry);
     }

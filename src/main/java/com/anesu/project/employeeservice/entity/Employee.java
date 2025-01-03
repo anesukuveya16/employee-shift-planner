@@ -36,7 +36,7 @@ public class Employee {
       orphanRemoval = true)
   private Schedule schedule;
 
-  //TODO: Reconsider the scalability of this.
+  // TODO: Reconsider the scalability of this.
   @OneToMany(
       mappedBy = "employee",
       fetch = FetchType.LAZY,

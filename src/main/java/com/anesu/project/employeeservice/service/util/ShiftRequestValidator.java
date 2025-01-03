@@ -4,7 +4,9 @@ import com.anesu.project.employeeservice.entity.shift.ShiftRequest;
 import com.anesu.project.employeeservice.model.repository.ShiftRequestRepository;
 import com.anesu.project.employeeservice.service.exception.ShiftValidationException;
 import java.util.Optional;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ShiftRequestValidator {
 
   private static final int MAX_LEGAL_WORKING_HOURS = 10;

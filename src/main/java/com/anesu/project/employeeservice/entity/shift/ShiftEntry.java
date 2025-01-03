@@ -3,7 +3,6 @@ package com.anesu.project.employeeservice.entity.shift;
 import jakarta.persistence.Embeddable;
 import java.time.LocalDateTime;
 import lombok.Builder;
-import lombok.NoArgsConstructor;
 
 /**
  * A ShiftEntry is an entry in the schedule that is equivalent to a {@link ShiftRequest} with {@link
@@ -17,8 +16,7 @@ public class ShiftEntry {
   private ShiftType shiftType;
   private Long workingHours;
 
-  public ShiftEntry() {
-  }
+  public ShiftEntry() {}
 
   public ShiftEntry(Long shiftId, LocalDateTime shiftDate, ShiftType shiftType, Long workingHours) {
     this.shiftId = shiftId;
@@ -66,5 +64,4 @@ public class ShiftEntry {
   public void setWorkingHours(Long workingHours) {
     this.workingHours = workingHours;
   }
-
 }

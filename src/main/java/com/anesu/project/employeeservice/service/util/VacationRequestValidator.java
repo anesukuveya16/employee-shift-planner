@@ -7,7 +7,9 @@ import com.anesu.project.employeeservice.service.exception.InvalidVacationReques
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import org.springframework.stereotype.Component;
 
+@Component
 public class VacationRequestValidator {
 
   private static final int MAX_VACATION_DAYS_EACH_YEAR = 30;

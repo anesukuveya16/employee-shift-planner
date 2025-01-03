@@ -9,9 +9,9 @@ import lombok.ToString;
 
 @Entity
 @ToString
-@EqualsAndHashCode
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode
 public class ShiftRequest {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
